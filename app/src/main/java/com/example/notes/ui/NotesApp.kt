@@ -20,7 +20,7 @@ fun NotesApp() {
         startDestination = "notesList" // начальный экран
     ) {
         composable("notesList") {
-            NotesListScreen(navController, NoteRepository.getAllNotes())
+            NotesListScreen(navController)
         }
         composable("noteReader") {
             NoteReaderScreen(navController)
