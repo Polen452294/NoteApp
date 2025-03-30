@@ -12,13 +12,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.notes.ui.theme.NotesTheme
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun NotesListScreen(navController: NavController) {
-    // Состояние для текстового поля поиска
-    var searchText by remember { mutableStateOf("") }
-
-    // Список задач (заглушка для демонстрации)
     var dailyTasks by remember {
         mutableStateOf(
             listOf(
@@ -30,36 +32,26 @@ fun NotesListScreen(navController: NavController) {
         )
     }
 
-    /**
-     * Обратите внимание, что здесь используем:
-     *  - MaterialTheme.colorScheme.background – для заливки всего экрана
-     */
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-
-            // Верхняя панель: поиск + кнопка "Войти"
-            TopBar(
-                searchText = searchText,
-                onSearchTextChange = { searchText = it },
-                onLoginClick = {
-                    // Обработка нажатия на "Войти"
-                }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally // Центрируем по горизонтали
+        ) {
+            ScheduleBlock(scheduleItems = listOf(
+                "1 пара орг",
+                "2 пара орг",
+                "3 пара орг",
+                "4 пара орг")
             )
 
-            // Блок "Расписание"
-            ScheduleBlock()
-
-            // Блок "Цели и задачи на день"
             Text(
                 text = "Цели и задачи на день",
                 style = MaterialTheme.typography.titleMedium,
-                /**
-                 * Обычно для текста на цветном фоне берут `color = MaterialTheme.colorScheme.onBackground`
-                 * либо другой подходящий цвет.
-                 */
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(bottom = 8.dp, top = 16.dp)
             )
@@ -75,8 +67,7 @@ fun NotesListScreen(navController: NavController) {
     }
 }
 
-/** Верхняя горизонтальная панель поиска (и при желании кнопки "Войти") */
-@OptIn(ExperimentalMaterial3Api::class)
+/** Панель поиска*/
 @Composable
 fun TopBar(
     searchText: String,
@@ -89,13 +80,17 @@ fun TopBar(
             .padding(bottom = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        /**
-         * Настраиваем цвета TextField через textFieldColors,
-         * используя текущую colorScheme.
-         */
-        TextField(
+        /*TextField(
             value = searchText,
             onValueChange = onSearchTextChange,
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = MaterialTheme.colorScheme.onBackground, // Цвет текста в фокусе
+                unfocusedTextColor = MaterialTheme.colorScheme.onBackground, // Цвет текста без фокуса
+                focusedIndicatorColor = MaterialTheme.colorScheme.surface, // Линия в фокусе
+                unfocusedIndicatorColor = MaterialTheme.colorScheme.surface, // Линия без фокуса
+                focusedContainerColor = MaterialTheme.colorScheme.surface, // Фон в фокусе
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface // Фон без фокуса
+            ),
             label = {
                 Text(
                     text = "Поиск",
@@ -103,37 +98,73 @@ fun TopBar(
                 )
             },
             modifier = Modifier.weight(1f)
-        )
+        )*/
     }
 }
 
-/** Блок "Расписание" с 4 строками */
+// Блок расписания
 @Composable
-fun ScheduleBlock() {
-    Text(
-        text = "Расписание",
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onBackground,
-        modifier = Modifier.padding(bottom = 8.dp)
-    )
-
-    Box(
+fun ScheduleBlock(scheduleItems: List<String>) {
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp)
+            .fillMaxWidth() // Занимает всю ширину экрана
+            .padding(16.dp), // Добавляем отступ для всего блока
+        horizontalAlignment = Alignment.CenterHorizontally // Выравниваем по горизонтали
     ) {
-        Column {
-            repeat(4) { index ->
-                Text(
-                    text = "Пункт #${index + 1} из расписания",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(vertical = 4.dp)
-                )
+        Text(
+            text = "Расписание на день",
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontSize = 16.sp, // Размер заголовка
+                fontWeight = FontWeight.Bold
+            ),
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(bottom = 16.dp) // Отступ снизу
+        )
+
+        // Контейнер для всех пунктов расписания
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.9f) // Элементы занимают 80% ширины
+                .clip(RoundedCornerShape(8.dp)) // Скругление углов
+                .background(MaterialTheme.colorScheme.surface) // Фон для всего списка
+                .padding(16.dp) // Внутренние отступы
+        ) {
+            // Отображаем каждый элемент расписания
+            scheduleItems.forEachIndexed { index, item ->
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth() // Элементы занимают всю ширину
+                            .wrapContentHeight() // Автоматически подстраивает высоту под контент
+                            .padding(vertical = 2.dp), // Добавляем отступ между пунктами
+                        contentAlignment = Alignment.CenterStart // Выравнивание текста по левому краю
+                    ) {
+                        Text(
+                            text = item,
+                            fontSize = 15.sp, // Размер текста
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+
+                    // Линия, разделяющая пункты
+                    if (index != scheduleItems.lastIndex) {
+                        Divider(
+                            color = MaterialTheme.colorScheme.onPrimary, // Цвет линии
+                            thickness = 1.dp, // Толщина линии
+                            modifier = Modifier.padding(vertical = 8.dp) // Отступы вокруг линии
+                        )
+                    }
+                }
             }
         }
     }
 }
+
+
+
 
 /** Список целей и задач, которые можно отмечать выполненными */
 @Composable
@@ -149,9 +180,6 @@ fun DailyTasksList(
                     .padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                /**
-                 * Настраиваем цвета для Checkbox, чтобы они вписывались в тему
-                 */
                 Checkbox(
                     checked = task.completed,
                     onCheckedChange = { isChecked -> onTaskCheckedChange(task, isChecked) },
@@ -177,12 +205,7 @@ data class DailyTask(
     val completed: Boolean = false
 )
 
-/** ---------------------- Превью (Preview) ---------------------- */
-
-/**
- * Предпросмотр экрана целиком.
- * Оборачиваем в NotesTheme, чтобы работала наша тема.
- */
+// ---------------------- Превью (Preview) ----------------------
 @Preview(showBackground = true)
 @Composable
 fun PreviewNotesListScreen() {
@@ -193,7 +216,7 @@ fun PreviewNotesListScreen() {
 }
 
 /** Предпросмотр верхней панели */
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
 fun PreviewTopBar() {
     NotesTheme(darkTheme = true) {
@@ -206,16 +229,24 @@ fun PreviewTopBar() {
 }
 
 /** Предпросмотр блока "Расписание" */
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewScheduleBlock() {
     NotesTheme(darkTheme = true) {
-        ScheduleBlock()
+        ScheduleBlock(
+            scheduleItems = listOf(
+                "1 пара",
+                "2 пара",
+                "3 пара",
+                "4 пара"
+            )
+        )
     }
 }
 
+
 /** Предпросмотр списка целей и задач */
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewDailyTasksList() {
     val sampleTasks = listOf(
